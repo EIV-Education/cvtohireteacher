@@ -6,6 +6,8 @@ import { InputMode, ProcessingStatus, UploadedFile, LarkConfig } from './types';
 import { processCV } from './services/geminiService';
 import { Settings as SettingsIcon, Save, X, RefreshCcw, Info, Database, FileCode, Play, CheckCircle2 } from 'lucide-react';
 
+const DEFAULT_WEBHOOK_URL = "https://eiveducation.sg.larksuite.com/base/automation/webhook/event/XczYac0jswZYWehHEcXlXJJQgmc";
+
 const INITIAL_TEMPLATE = `TRÍCH XUẤT THÔNG TIN VÀ TRẢ VỀ DẠNG JSON OBJECT:
 {
   "full_name": "Nguyễn Văn A",
