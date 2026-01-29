@@ -36,7 +36,7 @@ function App() {
   // Settings States
   const [larkConfig, setLarkConfig] = useState<LarkConfig>(() => {
     const saved = localStorage.getItem('lark_config');
-    return saved ? JSON.parse(saved) : { webhookUrl: '', enabled: true };
+    return saved ? JSON.parse(saved) : { webhookUrl: DEFAULT_WEBHOOK_URL, enabled: true };
   });
 
   const [extractionTemplate, setExtractionTemplate] = useState<string>(() => {
