@@ -167,7 +167,7 @@ const InputSection: React.FC<InputSectionProps> = ({
           ) : (
             <>
               <Send className="w-5 h-5" />
-              <span>Chuẩn hóa & Gửi Lark Base</span>
+              <span>Extract CV & Lưu vào Lark Base</span>
             </>
           )}
         </button>
