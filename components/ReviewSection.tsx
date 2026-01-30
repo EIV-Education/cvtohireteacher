@@ -3,7 +3,7 @@ import React from 'react';
 import { 
   Save, X, User, MapPin, Mail, Phone, GraduationCap, 
   Award, Briefcase, Users, Trash2, CheckCircle2, 
-  Info, Calendar
+  Info, Calendar, Share2, Building2
 } from 'lucide-react';
 
 interface ReviewSectionProps {
@@ -21,9 +21,9 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm,
 
   const sections = [
     {
-      title: "Thông tin cá nhân",
+      title: "Thông tin cá nhân & Quản lý",
       icon: <User className="w-4 h-4 text-[#f58220]" />,
-      fields: ['full_name', 'gender', 'birth_year', 'nationality', 'email', 'phone', 'address']
+      fields: ['full_name', 'gender', 'birth_year', 'nationality', 'email', 'phone', 'address', 'branch', 'cv_source']
     },
     {
       title: "Chuyên môn & Bằng cấp",
@@ -44,6 +44,8 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm,
     certificates: "Bằng cấp & Chứng chỉ",
     experience_summary: "Tóm tắt kinh nghiệm chuyên môn",
     class_type: "Môi trường dạy (Class Type)",
+    branch: "Chi nhánh tiếp nhận",
+    cv_source: "Nguồn hồ sơ (Source)"
   };
 
   const renderField = (key: string) => {
@@ -127,7 +129,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm,
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {section.fields.map((key) => (
-                    <div key={key} className={key === 'address' || key === 'certificates' ? 'sm:col-span-2' : ''}>
+                    <div key={key} className={key === 'address' || key === 'certificates' || key === 'branch' || key === 'cv_source' ? 'sm:col-span-2' : ''}>
                       <label className="block text-[11px] font-bold text-gray-400 uppercase mb-1.5 ml-1">{fieldLabels[key]}</label>
                       {renderField(key)}
                     </div>
@@ -150,7 +152,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm,
                 <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100 flex gap-3 mt-4">
                   <Info className="w-5 h-5 text-[#3370ff] flex-shrink-0 mt-0.5" />
                   <p className="text-[11px] text-[#2858cc] leading-relaxed">
-                    Dữ liệu sẽ được ánh xạ trực tiếp vào Lark Base. Đảm bảo <strong>Class Type</strong> chính xác để lọc giáo viên dễ dàng hơn.
+                    Dữ liệu <strong>Chi nhánh</strong> và <strong>Nguồn CV</strong> giúp bộ phận HR quản lý hiệu quả chiến dịch tuyển dụng trên Lark Base.
                   </p>
                 </div>
              </div>
