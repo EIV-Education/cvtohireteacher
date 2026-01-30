@@ -33,7 +33,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenSettings }) => {
             className="flex items-center text-xs font-bold text-white bg-[#f58220] hover:bg-[#e67300] px-4 py-2 rounded-full transition-all shadow-sm active:scale-95"
           >
             <ExternalLink className="w-3 h-3 mr-1.5" />
-            HireTeacher
+            HIRETEACHER
           </a>
           <div className="hidden md:flex items-center text-xs text-gray-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
             <Cloud className="w-3 h-3 mr-1 text-[#3370ff]" />
