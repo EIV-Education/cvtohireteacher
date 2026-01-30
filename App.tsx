@@ -2,9 +2,10 @@
 import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import InputSection from './components/InputSection';
+import ReviewSection from './components/ReviewSection';
 import { InputMode, ProcessingStatus, UploadedFile, LarkConfig } from './types';
 import { processCV } from './services/geminiService';
-import { Settings as SettingsIcon, Save, X, RefreshCcw, Info, Database, FileCode, Play, CheckCircle2 } from 'lucide-react';
+import { Settings as SettingsIcon, Save, X, RefreshCcw, Info, Database, FileCode, Play, CheckCircle2, Paperclip } from 'lucide-react';
 
 const DEFAULT_WEBHOOK_URL = "https://eiveducation.sg.larksuite.com/base/automation/webhook/event/XczYac0jswZYWehHEcXlXJJQgmc";
 
@@ -19,8 +20,8 @@ const INITIAL_TEMPLATE = `TRÍCH XUẤT THÔNG TIN VÀ TRẢ VỀ DẠNG JSON OB
   "phone": "0901234567",
   "university": "Bachelor’s Degree, Associate’s Degree, Master’s Degree, Doctorate (PhD)",
   "certificates": "IELTS 7.5, AWS Certified",
-  "experience_summary": "5 năm kinh nghiệm lập trình Fullstack, chuyên về React và Node.js.",
-  "class_type": "Kindergarten / Preschool, Primary School, Secondary School...."
+  "experience_summary": "Tóm tắt kinh nghiệm làm việc chuyên môn.",
+  "class_type": "Kindergarten / Preschool, Primary School, Secondary School, High School, Language Center, Online..."
 }
 Lưu ý: Nếu thiếu thông tin ghi "N/A"`;
 
@@ -29,6 +30,7 @@ function App() {
   const [cvText, setCvText] = useState('');
   const [cvFile, setCvFile] = useState<UploadedFile | null>(null);
   const [status, setStatus] = useState<ProcessingStatus>(ProcessingStatus.IDLE);
+  const [extractedData, setExtractedData] = useState<any>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isTestingWebhook, setIsTestingWebhook] = useState(false);
   const [testSuccess, setTestSuccess] = useState(false);
@@ -61,25 +63,23 @@ function App() {
   const sendToLark = async (data: any, file: UploadedFile | null, isTest: boolean = false) => {
     if (!larkConfig.webhookUrl) return;
 
-    // Chuẩn bị các trường dữ liệu, bao gồm cả thông tin file
     const fieldsWithFile = {
       ...data,
       "file_attachment_name": file ? file.name : (isTest ? "Sample_CV.pdf" : "N/A"),
+      "file_content_base64": file ? file.data.split(',')[1] : (isTest ? "VGVzdCBkYXRh" : ""), 
       "upload_time": new Date().toLocaleString('vi-VN')
     };
 
-    // Lark payload construction
     const payload = {
       msg_type: "text",
       content: {
         text: JSON.stringify({
-          source: "HR CV Formatter",
+          source: "EIV HR CV Formatter",
           is_test: isTest,
           extracted_data: fieldsWithFile,
           timestamp: new Date().toLocaleString('vi-VN')
         }, null, 2)
       },
-      // Record for Bitable Integration - mapped fields
       record: {
         fields: fieldsWithFile 
       }
@@ -104,20 +104,16 @@ function App() {
       alert("Vui lòng nhập Webhook URL trước.");
       return;
     }
-
     setIsTestingWebhook(true);
     setTestSuccess(false);
-
     try {
-      // Extract structure from template to send as sample
       let sampleData = {};
       try {
         const jsonMatch = extractionTemplate.match(/\{[\s\S]*\}/);
         sampleData = jsonMatch ? JSON.parse(jsonMatch[0]) : {};
       } catch (e) {
-        sampleData = { "info": "Mẫu không hợp lệ, đang gửi dữ liệu test mặc định", "full_name": "Nguyễn Văn Test", "gender": "Nam" };
+        sampleData = { "info": "Mẫu không hợp lệ", "full_name": "Nguyễn Văn Test", "gender": "Male" };
       }
-
       await sendToLark(sampleData, null, true);
       setTestSuccess(true);
       setTimeout(() => setTestSuccess(false), 3000);
@@ -134,31 +130,19 @@ function App() {
       setIsSettingsOpen(true);
       return;
     }
-
     setStatus(ProcessingStatus.PROCESSING);
-    
     try {
       const result = await processCV(extractionTemplate, cvText, cvFile);
-      
       let parsedData;
       try {
         const jsonMatch = result.match(/\{[\s\S]*\}/);
         parsedData = jsonMatch ? JSON.parse(jsonMatch[0]) : null;
       } catch (e) {
-        throw new Error("AI không thể tạo đúng cấu hình mẫu công ty. Hãy kiểm tra lại phần 'Yêu cầu mẫu' trong Cài đặt.");
+        throw new Error("AI không thể tạo đúng cấu hình JSON. Hãy kiểm tra lại phần 'Mẫu trích xuất'.");
       }
-
       if (!parsedData) throw new Error("Không thể trích xuất dữ liệu từ CV.");
-
-      await sendToLark(parsedData, cvFile);
-      setStatus(ProcessingStatus.SUCCESS);
-      
-      setTimeout(() => {
-          setCvFile(null);
-          setCvText('');
-          setStatus(ProcessingStatus.IDLE);
-      }, 3000);
-
+      setExtractedData(parsedData);
+      setStatus(ProcessingStatus.REVIEW);
     } catch (error: any) {
       console.error(error);
       alert(error.message);
@@ -166,147 +150,123 @@ function App() {
     }
   };
 
+  const handleConfirmAndSend = async () => {
+    setStatus(ProcessingStatus.SENDING);
+    try {
+      await sendToLark(extractedData, cvFile);
+      setStatus(ProcessingStatus.SUCCESS);
+      setTimeout(() => {
+          setCvFile(null);
+          setCvText('');
+          setExtractedData(null);
+          setStatus(ProcessingStatus.IDLE);
+      }, 2000);
+    } catch (error) {
+      alert("Lỗi khi gửi dữ liệu lên Lark.");
+      setStatus(ProcessingStatus.REVIEW);
+    }
+  };
+
+  const handleCancelReview = () => {
+    setExtractedData(null);
+    setStatus(ProcessingStatus.IDLE);
+  };
+
   return (
-    <div className="min-h-screen flex flex-col bg-[#f4f7fe] text-gray-900 font-['Inter']">
+    <div className="min-h-screen flex flex-col bg-[#f4f7fe] text-gray-900 font-['Inter'] overflow-hidden">
       <Header onOpenSettings={() => setIsSettingsOpen(true)} />
       
-      <main className="flex-1 w-full mx-auto px-4 py-12 flex justify-center items-start">
-        <div className="w-full max-w-xl">
-            <InputSection 
-              inputMode={inputMode}
-              setInputMode={setInputMode}
-              cvText={cvText}
-              setCvText={setCvText}
-              cvFile={cvFile}
-              setCvFile={setCvFile}
-              onProcess={handleProcess}
-              isProcessing={status === ProcessingStatus.PROCESSING}
-              status={status}
-            />
-            
-            <div className="mt-8 grid grid-cols-2 gap-4">
-              <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
-                <h3 className="text-[11px] uppercase tracking-wider font-bold text-gray-400 mb-2 flex items-center gap-2">
-                  <Database className="w-3 h-3 text-[#3370ff]" />
-                  Lark Sync
-                </h3>
-                <p className="text-xs font-medium text-gray-600 truncate">
-                  {larkConfig.webhookUrl ? "Đã kết nối Webhook" : "Chưa cấu hình"}
-                </p>
+      <main className="flex-1 w-full mx-auto px-4 py-8 flex justify-center items-start">
+        <div className={`w-full transition-all duration-700 ${
+          status === ProcessingStatus.REVIEW || status === ProcessingStatus.SENDING || (status === ProcessingStatus.SUCCESS && extractedData)
+            ? 'max-w-7xl' 
+            : 'max-w-xl'
+        }`}>
+            {status === ProcessingStatus.REVIEW || status === ProcessingStatus.SENDING || (status === ProcessingStatus.SUCCESS && extractedData) ? (
+              <ReviewSection 
+                data={extractedData}
+                setData={setExtractedData}
+                onConfirm={handleConfirmAndSend}
+                onCancel={handleCancelReview}
+                isSending={status === ProcessingStatus.SENDING}
+              />
+            ) : (
+              <div className="max-w-xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-500">
+                <InputSection 
+                  inputMode={inputMode}
+                  setInputMode={setInputMode}
+                  cvText={cvText}
+                  setCvText={setCvText}
+                  cvFile={cvFile}
+                  setCvFile={setCvFile}
+                  onProcess={handleProcess}
+                  isProcessing={status === ProcessingStatus.PROCESSING}
+                  status={status}
+                />
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm">
+                    <h3 className="text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-2 flex items-center gap-2">
+                      <Database className="w-3 h-3 text-[#f58220]" /> Lark Sync
+                    </h3>
+                    <p className="text-xs font-bold text-gray-600 truncate">
+                      {larkConfig.webhookUrl ? "Sẵn sàng (Bitable)" : "Chưa cấu hình"}
+                    </p>
+                  </div>
+                  <div className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm">
+                    <h3 className="text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-2 flex items-center gap-2">
+                      <CheckCircle2 className="w-3 h-3 text-[#f58220]" /> Trạng thái AI
+                    </h3>
+                    <p className="text-xs font-bold text-gray-600">Gemini 3 Flash Pro</p>
+                  </div>
+                </div>
               </div>
-              <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
-                <h3 className="text-[11px] uppercase tracking-wider font-bold text-gray-400 mb-2 flex items-center gap-2">
-                  <FileCode className="w-3 h-3 text-[#3370ff]" />
-                  Mẫu hiện tại
-                </h3>
-                <p className="text-xs font-medium text-gray-600">
-                  {Object.keys(JSON.parse(extractionTemplate.match(/\{[\s\S]*\}/)?.[0] || '{}')).length} trường thông tin
-                </p>
-              </div>
-            </div>
+            )}
         </div>
       </main>
 
       {/* Settings Modal */}
       {isSettingsOpen && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden animate-in zoom-in duration-200 flex flex-col max-h-[90vh]">
+          <div className="bg-white rounded-[2rem] w-full max-w-2xl shadow-2xl overflow-hidden animate-in zoom-in duration-300 flex flex-col max-h-[90vh]">
             <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-[#f9fafb]">
-              <h2 className="font-bold text-gray-800 flex items-center gap-2">
-                <SettingsIcon className="w-5 h-5 text-[#3370ff]" />
-                Cấu hình HR Formatter
+              <h2 className="font-bold text-gray-800 flex items-center gap-2 text-lg">
+                <SettingsIcon className="w-5 h-5 text-[#f58220]" /> Cấu hình HR Formatter
               </h2>
-              <button onClick={() => setIsSettingsOpen(false)} className="text-gray-400 hover:text-gray-600 p-2">
-                <X className="w-5 h-5" />
-              </button>
+              <button onClick={() => setIsSettingsOpen(false)} className="text-gray-400 hover:text-gray-600 p-2"><X className="w-6 h-6" /></button>
             </div>
-            
             <div className="flex-1 overflow-y-auto p-8 space-y-8">
-              {/* Lark Webhook Section */}
-              <section>
-                <div className="flex items-center justify-between mb-3">
+              <section className="space-y-4">
+                <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="bg-blue-100 p-1.5 rounded-lg text-[#3370ff]">
-                      <Database className="w-4 h-4" />
-                    </div>
+                    <div className="bg-[#fdf2e9] p-2 rounded-xl text-[#f58220]"><Database className="w-4 h-4" /></div>
                     <h3 className="font-bold text-sm text-gray-800">Kết nối Lark Base (Bitable)</h3>
                   </div>
-                  
                   {larkConfig.webhookUrl && (
-                    <button 
-                      onClick={handleSendSample}
-                      disabled={isTestingWebhook}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all ${
-                        testSuccess 
-                        ? 'bg-green-100 text-green-700' 
-                        : 'bg-blue-50 text-[#3370ff] hover:bg-blue-100 active:scale-95'
-                      }`}
-                    >
-                      {isTestingWebhook ? (
-                        <div className="w-3 h-3 border-2 border-[#3370ff] border-t-transparent rounded-full animate-spin"></div>
-                      ) : testSuccess ? (
-                        <CheckCircle2 className="w-3 h-3" />
-                      ) : (
-                        <Play className="w-3 h-3" />
-                      )}
-                      {testSuccess ? 'ĐÃ GỬI MẪU!' : 'GỬI MẪU THỬ LÊN LARK'}
+                    <button onClick={handleSendSample} disabled={isTestingWebhook} className="bg-orange-50 text-[#f58220] hover:bg-orange-100 px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm">
+                      KIỂM TRA WEBHOOK
                     </button>
                   )}
                 </div>
-                <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
-                  <label className="block text-xs font-bold text-gray-500 mb-2 uppercase">Webhook URL</label>
-                  <input 
-                    type="text" 
-                    value={larkConfig.webhookUrl}
-                    onChange={(e) => setLarkConfig({...larkConfig, webhookUrl: e.target.value})}
-                    placeholder="https://open.larksuite.com/..."
-                    className="w-full p-3 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-100 outline-none"
-                  />
-                  <div className="mt-2 flex items-start gap-2 text-[10px] text-gray-400">
-                    <Info className="w-3 h-3 mt-0.5 flex-shrink-0" />
-                    <span>Sau khi nhấn "Gửi mẫu thử", hãy quay lại Lark Flow để nhấn "Tạo" từ dữ liệu mẫu nhận được.</span>
-                  </div>
+                <div className="bg-gray-50/50 p-5 rounded-2xl border border-gray-100">
+                  <label className="block text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-widest">Webhook URL (Automation)</label>
+                  <input type="text" value={larkConfig.webhookUrl} onChange={(e) => setLarkConfig({...larkConfig, webhookUrl: e.target.value})} placeholder="https://open.larksuite.com/..." className="w-full p-4 text-sm border border-gray-200 rounded-xl focus:ring-4 focus:ring-orange-50 focus:border-[#f58220] outline-none shadow-sm transition-all" />
                 </div>
               </section>
-
-              {/* Extraction Template Section */}
-              <section>
-                <div className="flex justify-between items-center mb-3">
+              <section className="space-y-4">
+                <div className="flex justify-between items-center">
                   <div className="flex items-center gap-2">
-                    <div className="bg-blue-100 p-1.5 rounded-lg text-[#3370ff]">
-                      <FileCode className="w-4 h-4" />
-                    </div>
-                    <h3 className="font-bold text-sm text-gray-800">Mẫu trích xuất (AI Prompt)</h3>
+                    <div className="bg-[#fdf2e9] p-2 rounded-xl text-[#f58220]"><FileCode className="w-4 h-4" /></div>
+                    <h3 className="font-bold text-sm text-gray-800">Mẫu trích xuất (AI Logic)</h3>
                   </div>
-                  <button 
-                    onClick={handleResetTemplate}
-                    className="flex items-center gap-1 text-[10px] font-bold text-gray-400 hover:text-[#3370ff] transition-colors"
-                  >
-                    <RefreshCcw className="w-3 h-3" />
-                    KHÔI PHỤC MẶC ĐỊNH
-                  </button>
+                  <button onClick={handleResetTemplate} className="flex items-center gap-1.5 text-xs font-bold text-gray-400 hover:text-[#f58220] transition-colors"><RefreshCcw className="w-3 h-3" /> KHÔI PHỤC MẶC ĐỊNH</button>
                 </div>
-                <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
-                  <p className="text-[10px] text-gray-500 mb-3 bg-blue-50 p-2 rounded-lg border border-blue-100">
-                    <strong>Mẹo:</strong> Đã thêm trường <code>gender</code> và tự động gửi tên file. Bạn có thể đổi tên Key trong JSON để khớp với cột trong Lark.
-                  </p>
-                  <textarea 
-                    value={extractionTemplate}
-                    onChange={(e) => setExtractionTemplate(e.target.value)}
-                    className="w-full h-64 p-4 text-xs font-mono border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-100 outline-none resize-none shadow-inner"
-                  />
+                <div className="bg-gray-50/50 p-5 rounded-2xl border border-gray-100 shadow-inner">
+                  <textarea value={extractionTemplate} onChange={(e) => setExtractionTemplate(e.target.value)} className="w-full h-72 p-5 text-xs font-mono border border-gray-200 rounded-xl focus:ring-4 focus:ring-orange-50 focus:border-[#f58220] outline-none resize-none bg-white transition-all" />
                 </div>
               </section>
             </div>
-
             <div className="p-6 bg-[#f9fafb] border-t border-gray-100">
-              <button 
-                onClick={() => setIsSettingsOpen(false)}
-                className="w-full py-4 bg-[#3370ff] text-white rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-[#2858cc] transition-all shadow-xl active:scale-95"
-              >
-                <Save className="w-5 h-5" />
-                Lưu toàn bộ thay đổi
-              </button>
+              <button onClick={() => setIsSettingsOpen(false)} className="w-full py-4 bg-[#f58220] text-white rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-[#e67300] shadow-xl shadow-[#f58220]/20 active:scale-95"><Save className="w-5 h-5" /> Lưu toàn bộ thay đổi</button>
             </div>
           </div>
         </div>
