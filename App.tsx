@@ -24,6 +24,7 @@ const INITIAL_TEMPLATE = `TRÍCH XUẤT THÔNG TIN VÀ TRẢ VỀ DẠNG JSON OB
   "class_type": "Kindergarten / Preschool, Primary School, Secondary School, High School, Language Center, Online...",
   "branch": "HO CHI MINH / HA NOI / DA NANG",
   "cv_source": "Facebook / LinkedIn / Website / Vietnamteachingjobs / Group Zalo / Outsource / Refferal from a friend/ Other/ ..."
+  "candidate_type": "School during daytime (full-time) / Private classes/Centers during evenings and weekends (part-time)"
 }
 Lưu ý: Nếu thiếu thông tin ghi "N/A"`;
 
