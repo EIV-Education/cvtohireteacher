@@ -171,8 +171,8 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm,
           <X className="w-6 h-6" />
         </button>
       </div>
-
-      <div className="flex-1 overflow-y-auto p-8 space-y-8 bg-gray-50/30">
+      
+<div className="flex-1 overflow-y-auto p-8 space-y-8 bg-gray-50/30">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="space-y-6">
             {sections.map((section) => (
@@ -183,7 +183,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm,
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {section.fields.map((key) => (
-                    <div key={key} className={key === 'address' || key === 'certificates' || key === 'branch' || key === 'cv_source' ? 'sm:col-span-2' : ''}>
+                    <div key={key} className={['address', 'certificates', 'branch', 'cv_source', 'candidate_type'].includes(key) ? 'sm:col-span-2' : ''}>
                       <label className="block text-[11px] font-bold text-gray-400 uppercase mb-1.5 ml-1">{fieldLabels[key]}</label>
                       {renderField(key)}
                     </div>
@@ -192,6 +192,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm,
               </div>
             ))}
           </div>
+
 
           <div className="flex flex-col">
              <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm h-full flex flex-col space-y-4">
@@ -203,10 +204,10 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm,
                   <label className="block text-[11px] font-bold text-gray-400 uppercase mb-1.5 ml-1">{fieldLabels['experience_summary']}</label>
                   {renderField('experience_summary')}
                 </div>
-                <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100 flex gap-3 mt-4">
-                  <Info className="w-5 h-5 text-[#3370ff] flex-shrink-0 mt-0.5" />
-                  <p className="text-[11px] text-[#2858cc] leading-relaxed">
-                    Dữ liệu <strong>Chi nhánh</strong> và <strong>Nguồn CV</strong> giúp bộ phận HR quản lý hiệu quả chiến dịch tuyển dụng trên Lark Base. Bạn có thể chọn nhiều giá trị cùng lúc.
+                <div className="bg-orange-50/50 p-4 rounded-xl border border-orange-100 flex gap-3 mt-4">
+                  <Info className="w-5 h-5 text-[#f58220] flex-shrink-0 mt-0.5" />
+                  <p className="text-[11px] text-orange-800 leading-relaxed">
+                    Trường <strong>Loại Ứng Viên</strong> mới được bổ sung để giúp bộ phận HR phân loại giáo viên theo khung thời gian làm việc (Full-time/Part-time).
                   </p>
                 </div>
              </div>
