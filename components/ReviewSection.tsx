@@ -3,7 +3,7 @@ import React from 'react';
 import { 
   Save, X, User, MapPin, Mail, Phone, GraduationCap, 
   Award, Briefcase, Users, Trash2, CheckCircle2, 
-  Info, Calendar, Share2, Building2
+  Info, Calendar, Share2, Building2, Check
 } from 'lucide-react';
 
 interface ReviewSectionProps {
@@ -44,8 +44,25 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm,
     certificates: "Bằng cấp & Chứng chỉ",
     experience_summary: "Tóm tắt kinh nghiệm chuyên môn",
     class_type: "Môi trường dạy (Class Type)",
-    branch: "Chi nhánh tiếp nhận",
-    cv_source: "Nguồn hồ sơ (Source)"
+    branch: "Chi nhánh tiếp nhận (Chọn nhiều)",
+    cv_source: "Nguồn hồ sơ (Source - Chọn nhiều)"
+  };
+
+  const BRANCH_OPTIONS = ["HO CHI MINH", "HA NOI", "DA NANG"];
+  const SOURCE_OPTIONS = ["Facebook", "LinkedIn", "Website", "Vietnamteachingjobs", "Outsource", "Refferal from a friend", "Group Zalo", "Other"];
+
+  const toggleOption = (key: string, option: string) => {
+    const currentValue = data[key] || '';
+    const selectedOptions = currentValue.split(',').map((s: string) => s.trim()).filter((s: string) => s && s !== 'N/A');
+    
+    let newValue;
+    if (selectedOptions.includes(option)) {
+      newValue = selectedOptions.filter((s: string) => s !== option).join(', ');
+    } else {
+      newValue = [...selectedOptions, option].join(', ');
+    }
+    
+    handleChange(key, newValue || 'N/A');
   };
 
   const renderField = (key: string) => {
@@ -61,13 +78,12 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm,
           <option value="N/A">Chọn giới tính</option>
           <option value="Male">Male</option>
           <option value="Female">Female</option>
-          <option value="Other">Other</option>
         </select>
       );
     }
 
     if (key === 'class_type') {
-      const options = ["Kindergarten / Preschool", "Primary School", "Secondary School", "High School", "Language Center", "Online", "University"];
+      const options = ["Kindergarten / Preschool", "Primary School", "Secondary School", "High School", "Language Center", "Online"];
       return (
         <select
           value={value}
@@ -77,6 +93,39 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm,
           <option value="N/A">Chọn phân loại</option>
           {options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
         </select>
+      );
+    }
+
+    if (key === 'branch' || key === 'cv_source') {
+      const options = key === 'branch' ? BRANCH_OPTIONS : SOURCE_OPTIONS;
+      const selected = value.split(',').map((s: string) => s.trim());
+      
+      return (
+        <div className="space-y-2">
+          <div className="flex flex-wrap gap-2">
+            {options.map(opt => (
+              <button
+                key={opt}
+                onClick={() => toggleOption(key, opt)}
+                className={`px-3 py-1.5 rounded-full text-[11px] font-bold transition-all border flex items-center gap-1 ${
+                  selected.includes(opt)
+                    ? 'bg-[#f58220] text-white border-[#f58220] shadow-sm'
+                    : 'bg-white text-gray-500 border-gray-200 hover:border-[#f58220] hover:text-[#f58220]'
+                }`}
+              >
+                {selected.includes(opt) && <Check className="w-3 h-3" />}
+                {opt}
+              </button>
+            ))}
+          </div>
+          <input
+            type="text"
+            placeholder="Hoặc nhập khác..."
+            value={value === 'N/A' ? '' : value}
+            onChange={(e) => handleChange(key, e.target.value)}
+            className="w-full p-2 text-[11px] border border-gray-100 rounded-lg focus:outline-none focus:border-[#f58220] bg-gray-50/30"
+          />
+        </div>
       );
     }
 
@@ -152,7 +201,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm,
                 <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100 flex gap-3 mt-4">
                   <Info className="w-5 h-5 text-[#3370ff] flex-shrink-0 mt-0.5" />
                   <p className="text-[11px] text-[#2858cc] leading-relaxed">
-                    Dữ liệu <strong>Chi nhánh</strong> và <strong>Nguồn CV</strong> giúp bộ phận HR quản lý hiệu quả chiến dịch tuyển dụng trên Lark Base.
+                    Dữ liệu <strong>Chi nhánh</strong> và <strong>Nguồn CV</strong> giúp bộ phận HR quản lý hiệu quả chiến dịch tuyển dụng trên Lark Base. Bạn có thể chọn nhiều giá trị cùng lúc.
                   </p>
                 </div>
              </div>
