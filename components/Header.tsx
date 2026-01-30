@@ -21,7 +21,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenSettings }) => {
             />
           </div>
           <div className="border-l border-gray-200 pl-3 h-8 flex flex-col justify-center">
-            <h1 className="text-lg font-bold text-gray-900 leading-none">CV to Lark</h1>
+            <h1 className="text-lg font-bold text-gray-900 leading-none">HIRETEACHER EIV</h1>
             <p className="text-[10px] text-[#f58220] uppercase tracking-widest mt-1 font-bold">Native Teacher AI</p>
           </div>
         </div>
