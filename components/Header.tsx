@@ -21,30 +21,27 @@ const Header: React.FC<HeaderProps> = ({ onOpenSettings }) => {
             />
           </div>
           <div className="border-l border-gray-200 pl-3 h-8 flex flex-col justify-center">
-            <h1 className="text-lg font-bold text-gray-900 leading-none">HireTeacher EIV</h1>
-            <p className="text-[10px] text-gray-500 uppercase tracking-widest mt-1 font-semibold">Native Teacher Recruitment</p>
+            <h1 className="text-lg font-bold text-gray-900 leading-none">CV to Lark</h1>
+            <p className="text-[10px] text-[#f58220] uppercase tracking-widest mt-1 font-bold">Native Teacher AI</p>
           </div>
         </div>
-        
         <div className="flex items-center space-x-3">
           <a 
             href="https://eiveducation.sg.larksuite.com/base/CPTAb8I0NavH4nsoRLFlWEx6g3g?table=tblsTSCYwiXVi3Nn&view=vewk1bTlvu" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="flex items-center text-xs font-bold text-[#3370ff] hover:text-white hover:bg-[#3370ff] px-4 py-2 rounded-full border border-[#3370ff] transition-all shadow-sm"
+            className="flex items-center text-xs font-bold text-white bg-[#f58220] hover:bg-[#e67300] px-4 py-2 rounded-full transition-all shadow-sm active:scale-95"
           >
             <ExternalLink className="w-3 h-3 mr-1.5" />
             HireTeacher
           </a>
-          
           <div className="hidden md:flex items-center text-xs text-gray-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
             <Cloud className="w-3 h-3 mr-1 text-[#3370ff]" />
             Lark Base Sync Active
           </div>
-          
           <button 
             onClick={onOpenSettings}
-            className="p-2 text-gray-400 hover:text-[#3370ff] hover:bg-blue-50 rounded-full transition-all"
+            className="p-2 text-gray-400 hover:text-[#f58220] hover:bg-orange-50 rounded-full transition-all"
             title="Cấu hình Lark Base"
           >
             <Settings className="w-5 h-5" />
