@@ -54,7 +54,7 @@ const InputSection: React.FC<InputSectionProps> = ({
     <div className="flex flex-col h-full bg-white rounded-[2rem] shadow-xl border border-gray-100 overflow-hidden">
       <div className="p-6 border-b border-gray-50 bg-[#f9fafb] flex justify-between items-center">
         <h2 className="font-bold text-gray-800 flex items-center gap-2">
-          <FileText className="w-5 h-5 text-[#f58220]" /> Hồ sơ ứng viên
+          <FileText className="w-5 h-5 text-[#f58220]" /> Hồ Sơ Ứng Viên
         </h2>
         {status === ProcessingStatus.ERROR && (
            <div className="flex items-center text-red-500 text-[11px] font-bold bg-red-50 px-3 py-1 rounded-full animate-pulse">
@@ -140,7 +140,7 @@ const InputSection: React.FC<InputSectionProps> = ({
             </>
           ) : (
             <>
-              <Send className="w-5 h-5" /> <span>Bắt đầu trích xuất AI</span>
+              <Send className="w-5 h-5" /> <span>Bắt đầu trích xuất CV</span>
             </>
           )}
         </button>
