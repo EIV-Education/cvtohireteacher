@@ -18,6 +18,8 @@ export interface LarkConfig {
 export enum ProcessingStatus {
   IDLE = 'IDLE',
   PROCESSING = 'PROCESSING',
+  REVIEW = 'REVIEW',
+  SENDING = 'SENDING',
   SUCCESS = 'SUCCESS',
   ERROR = 'ERROR'
 }
