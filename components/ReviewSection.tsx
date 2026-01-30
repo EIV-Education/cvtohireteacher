@@ -45,7 +45,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm,
     experience_summary: "Tóm tắt kinh nghiệm chuyên môn",
     class_type: "Môi trường dạy (Class Type)",
     branch: "Chi nhánh tiếp nhận (Chọn nhiều)",
-    cv_source: "Nguồn hồ sơ (Source - Chọn nhiều)"
+    cv_source: "Nguồn hồ sơ (Source - Chọn nhiều)",
     candidate_type: "Loại Ứng Viên (Candidate Type)"
   };
 
