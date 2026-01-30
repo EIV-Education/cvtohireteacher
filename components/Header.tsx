@@ -22,7 +22,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenSettings }) => {
           </div>
           <div className="border-l border-gray-200 pl-3 h-8 flex flex-col justify-center">
             <h1 className="text-lg font-bold text-gray-900 leading-none">HIRETEACHER EIV</h1>
-            <p className="text-[10px] text-[#f58220] uppercase tracking-widest mt-1 font-bold">Native Teacher</p>
+            <p className="text-[10px] text-[#f58220] uppercase tracking-widest mt-1 font-bold">Since 2009|Native Teacher</p>
           </div>
         </div>
         <div className="flex items-center space-x-3">
