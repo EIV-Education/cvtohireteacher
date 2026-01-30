@@ -50,7 +50,6 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm,
 
   const BRANCH_OPTIONS = ["HO CHI MINH", "HA NOI", "DA NANG"];
   const SOURCE_OPTIONS = ["Facebook", "LinkedIn", "Website", "Vietnamteachingjobs", "Outsource", "Refferal from a friend", "Group Zalo", "Other"];
-  ];
 
   const toggleOption = (key: string, option: string) => {
     const currentValue = data[key] || '';
