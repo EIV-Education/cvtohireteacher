@@ -21,7 +21,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm,
 
   const sections = [
     {
-      title: "Thông tin cá nhân & Quản lý",
+      title: "Thông tin cá nhân",
       icon: <User className="w-4 h-4 text-[#f58220]" />,
       fields: ['full_name', 'gender', 'birth_year', 'nationality', 'email', 'phone', 'address', 'branch', 'cv_source']
     },
@@ -40,12 +40,12 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm,
     birth_year: "Năm sinh",
     email: "Địa chỉ Email",
     phone: "Số điện thoại",
-    university: "Trường Đại học/Học vấn",
-    certificates: "Bằng cấp & Chứng chỉ",
+    university: "Bằng Cấp",
+    certificates: "Chứng Chỉ",
     experience_summary: "Tóm tắt kinh nghiệm chuyên môn",
     class_type: "Môi trường dạy (Class Type)",
-    branch: "Chi nhánh tiếp nhận (Chọn nhiều)",
-    cv_source: "Nguồn hồ sơ (Source - Chọn nhiều)",
+    branch: "Chi nhánh tiếp nhận",
+    cv_source: "Nguồn CV (Source)",
   };
 
   const BRANCH_OPTIONS = ["HO CHI MINH", "HA NOI", "DA NANG"];
