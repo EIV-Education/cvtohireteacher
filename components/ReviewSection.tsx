@@ -23,7 +23,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm,
     {
       title: "Thông tin cá nhân",
       icon: <User className="w-4 h-4 text-[#f58220]" />,
-      fields: ['full_name', 'gender', 'birth_year', 'nationality', 'email', 'phone', 'address', 'branch', 'cv_source']
+      fields: ['full_name', 'gender', 'birth_year', 'nationality', 'email', 'phone', 'address', 'branch', 'cv_source', 'candidate_type']
     },
     {
       title: "Chuyên môn & Bằng cấp",
@@ -100,8 +100,8 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm,
       );
     }
 
-    if (key === 'branch' || key === 'cv_source') {
-      const options = key === 'branch' ? BRANCH_OPTIONS : SOURCE_OPTIONS;
+    if (key === 'branch' || key === 'cv_source' || key === 'candidate_type') {
+      const options = key === 'branch' ? BRANCH_OPTIONS : (key === 'cv_source' ? SOURCE_OPTIONS : CANDIDATE_TYPE_OPTIONS);
       const selected = value.split(',').map((s: string) => s.trim());
       
       return (
