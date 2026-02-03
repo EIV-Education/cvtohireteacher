@@ -46,11 +46,15 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm,
     class_type: "Môi trường dạy (Class Type)",
     branch: "Chi nhánh tiếp nhận",
     cv_source: "Nguồn CV (Source)",
+    candidate_type: "Loại Ứng Viên"
   };
 
   const BRANCH_OPTIONS = ["HO CHI MINH", "HA NOI", "DA NANG"];
   const SOURCE_OPTIONS = ["Facebook", "LinkedIn", "Website", "Vietnamteachingjobs", "Outsource", "Refferal from a friend", "Group Zalo", "Other"];
-
+  const CANDIDATE_TYPE_OPTIONS = [
+    "School during daytime (full-time)",
+    "Private classes/Centers during evenings and weekends (part-time)"];
+  
   const toggleOption = (key: string, option: string) => {
     const currentValue = data[key] || '';
     const selectedOptions = currentValue.split(',').map((s: string) => s.trim()).filter((s: string) => s && s !== 'N/A');
