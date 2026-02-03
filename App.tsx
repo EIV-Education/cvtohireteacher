@@ -19,11 +19,11 @@ const INITIAL_TEMPLATE = `TRÍCH XUẤT THÔNG TIN VÀ TRẢ VỀ DẠNG JSON OB
   "email": "nguyenvana@email.com",
   "phone": "0901234567",
   "university": "Bachelor’s Degree, Associate’s Degree, Master’s Degree, Doctorate (PhD)",
-  "certificates": "IELTS 7.5,TEFL,CELTA,TESOL,TOEIC 900+"
+  "certificates": "IELTS 7.5,TEFL,CELTA,TESOL,TOEIC 900+",
   "experience_summary": "Tóm tắt kinh nghiệm làm việc chuyên môn.",
   "class_type": "Kindergarten / Preschool, Primary School, Secondary School, High School, Language Center, Online...",
   "branch": "HO CHI MINH / HA NOI / DA NANG",
-  "cv_source": "Facebook / LinkedIn / Website / Vietnamteachingjobs / Group Zalo / Outsource / Refferal from a friend/ Other/ ..."
+  "cv_source": "Facebook / LinkedIn / Website / Vietnamteachingjobs / Group Zalo / Outsource / Refferal from a friend/ Other/ ...",
   "candidate_type": "School during daytime (full-time) / Private classes/Centers during evenings and weekends (part-time)"
 }
 Lưu ý: Nếu thiếu thông tin ghi "N/A"`;
