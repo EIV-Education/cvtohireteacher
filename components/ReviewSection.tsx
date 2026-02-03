@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Save, X, User, MapPin, Mail, Phone, GraduationCap, 
   Award, Briefcase, Users, Trash2, CheckCircle2, 
@@ -15,6 +14,8 @@ interface ReviewSectionProps {
 }
 
 const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm, onCancel, isSending }) => {
+  const [isCandidateTypeOpen, setIsCandidateTypeOpen] = useState(false);
+
   const handleChange = (key: string, value: string) => {
     setData({ ...data, [key]: value });
   };
@@ -40,8 +41,8 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm,
     birth_year: "Năm sinh",
     email: "Địa chỉ Email",
     phone: "Số điện thoại",
-    university: "Bằng Cấp",
-    certificates: "Chứng Chỉ",
+    university: "Bằng cấp",
+    certificates: "Chứng chỉ",
     experience_summary: "Tóm tắt kinh nghiệm chuyên môn",
     class_type: "Môi trường dạy (Class Type)",
     branch: "Chi nhánh tiếp nhận",
@@ -49,12 +50,12 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm,
     candidate_type: "Loại Ứng Viên"
   };
 
-  const BRANCH_OPTIONS = ["HO CHI MINH", "HA NOI", "DA NANG"];
+  const BRANCH_OPTIONS = ["HO CHI MINH","DA NANG","HA NOI"];
   const SOURCE_OPTIONS = ["Facebook", "LinkedIn", "Website", "Vietnamteachingjobs", "Outsource", "Refferal from a friend", "Group Zalo", "Other"];
   const CANDIDATE_TYPE_OPTIONS = [
     "School during daytime (full-time)",
     "Private classes/Centers during evenings and weekends (part-time)"];
-  
+
   const toggleOption = (key: string, option: string) => {
     const currentValue = data[key] || '';
     const selectedOptions = currentValue.split(',').map((s: string) => s.trim()).filter((s: string) => s && s !== 'N/A');
@@ -67,6 +68,21 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm,
     }
     
     handleChange(key, newValue || 'N/A');
+  };
+
+  // ========== NEW: Toggle function cho candidate_type dropdown ==========
+  const toggleCandidateType = (option: string) => {
+    const currentValue = data['candidate_type'] || '';
+    const selectedValues = currentValue.split(',').map((s: string) => s.trim()).filter((s: string) => s && s !== 'N/A');
+    
+    let newValues;
+    if (selectedValues.includes(option)) {
+      newValues = selectedValues.filter(v => v !== option);
+    } else {
+      newValues = [...selectedValues, option];
+    }
+    
+    handleChange('candidate_type', newValues.join(', ') || 'N/A');
   };
 
   const renderField = (key: string) => {
@@ -100,8 +116,9 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm,
       );
     }
 
-    if (key === 'branch' || key === 'cv_source' || key === 'candidate_type') {
-      const options = key === 'branch' ? BRANCH_OPTIONS : (key === 'cv_source' ? SOURCE_OPTIONS : CANDIDATE_TYPE_OPTIONS);
+    // ========== GIỮ NGUYÊN: Button multi-select cho branch và cv_source ==========
+    if (key === 'branch' || key === 'cv_source') {
+      const options = key === 'branch' ? BRANCH_OPTIONS : SOURCE_OPTIONS;
       const selected = value.split(',').map((s: string) => s.trim());
       
       return (
@@ -129,6 +146,91 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm,
             onChange={(e) => handleChange(key, e.target.value)}
             className="w-full p-2 text-[11px] border border-gray-100 rounded-lg focus:outline-none focus:border-[#f58220] bg-gray-50/30"
           />
+        </div>
+      );
+    }
+
+    // ========== MỚI: Custom dropdown với checkboxes cho candidate_type ==========
+    if (key === 'candidate_type') {
+      const selectedValues = value.split(',').map((s: string) => s.trim()).filter((s: string) => s && s !== 'N/A');
+      
+      return (
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setIsCandidateTypeOpen(!isCandidateTypeOpen)}
+            className="w-full p-3 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#f58220]/20 focus:border-[#f58220] outline-none transition-all bg-gray-50/50 text-left flex justify-between items-center hover:border-[#f58220]"
+          >
+            <span className={selectedValues.length === 0 ? 'text-gray-400' : 'text-gray-700'}>
+              {selectedValues.length === 0 
+                ? 'Chọn loại ứng viên...' 
+                : selectedValues.length === 1
+                  ? selectedValues[0]
+                  : `${selectedValues.length} loại đã chọn`}
+            </span>
+            <svg 
+              className={`w-4 h-4 transition-transform text-gray-400 ${isCandidateTypeOpen ? 'rotate-180' : ''}`} 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          
+          {isCandidateTypeOpen && (
+            <>
+              {/* Backdrop để đóng dropdown khi click bên ngoài */}
+              <div 
+                className="fixed inset-0 z-10" 
+                onClick={() => setIsCandidateTypeOpen(false)}
+              />
+              
+              <div className="absolute z-20 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden">
+                {CANDIDATE_TYPE_OPTIONS.map(opt => {
+                  const isSelected = selectedValues.includes(opt);
+                  return (
+                    <label
+                      key={opt}
+                      className="flex items-start px-4 py-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0 transition-colors"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => toggleCandidateType(opt)}
+                        className="w-4 h-4 text-[#f58220] border-gray-300 rounded focus:ring-[#f58220] cursor-pointer mt-0.5 flex-shrink-0"
+                      />
+                      <span className="ml-3 text-sm text-gray-700 leading-snug">{opt}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </>
+          )}
+          
+          {/* Hiển thị các tags đã chọn */}
+          {selectedValues.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-2">
+              {selectedValues.map(val => (
+                <span 
+                  key={val} 
+                  className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#f58220] text-white text-[11px] rounded-full font-medium"
+                >
+                  <span className="line-clamp-1">{val}</span>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleCandidateType(val);
+                    }}
+                    className="hover:bg-white/20 rounded-full p-0.5 transition-colors"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       );
     }
@@ -170,8 +272,8 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm,
           <X className="w-6 h-6" />
         </button>
       </div>
-      
-<div className="flex-1 overflow-y-auto p-8 space-y-8 bg-gray-50/30">
+
+      <div className="flex-1 overflow-y-auto p-8 space-y-8 bg-gray-50/30">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="space-y-6">
             {sections.map((section) => (
@@ -192,7 +294,6 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm,
             ))}
           </div>
 
-
           <div className="flex flex-col">
              <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm h-full flex flex-col space-y-4">
                 <div className="flex items-center gap-2 pb-2 border-b border-gray-50">
@@ -206,7 +307,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm,
                 <div className="bg-orange-50/50 p-4 rounded-xl border border-orange-100 flex gap-3 mt-4">
                   <Info className="w-5 h-5 text-[#f58220] flex-shrink-0 mt-0.5" />
                   <p className="text-[11px] text-orange-800 leading-relaxed">
-                    Trường <strong>Loại Ứng Viên</strong> mới được bổ sung để giúp bộ phận HR phân loại giáo viên theo khung thời gian làm việc (Full-time/Part-time).
+                    Trường <strong>Loại Ứng Viên</strong> cho phép bạn chọn một hoặc nhiều loại (Full-time/Part-time). Click vào dropdown để chọn.
                   </p>
                 </div>
              </div>
