@@ -54,7 +54,17 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm,
   const SOURCE_OPTIONS = ["Facebook", "LinkedIn", "Website", "Vietnamteachingjobs", "Outsource", "Refferal from a friend", "Group Zalo", "Other"];
   const CANDIDATE_TYPE_OPTIONS = [
     "School during daytime (full-time)",
-    "Private classes/Centers during evenings and weekends (part-time)"];
+    "Private classes/Centers during evenings and weekends (part-time)"
+  ];
+  // ========== THÊM MỚI: CONSTANT CHO CLASS_TYPE ==========
+  const CLASS_TYPE_OPTIONS = [
+    "Kindergarten / Preschool", 
+    "Primary School", 
+    "Secondary School", 
+    "High School", 
+    "Language Center", 
+    "Online"
+  ];
 
   const toggleOption = (key: string, option: string) => {
     const currentValue = data[key] || '';
@@ -70,7 +80,6 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm,
     handleChange(key, newValue || 'N/A');
   };
 
-  // ========== NEW: Toggle function cho candidate_type dropdown ==========
   const toggleCandidateType = (option: string) => {
     const currentValue = data['candidate_type'] || '';
     const selectedValues = currentValue.split(',').map((s: string) => s.trim()).filter((s: string) => s && s !== 'N/A');
@@ -102,23 +111,16 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm,
       );
     }
 
-    if (key === 'class_type') {
-      const options = ["Kindergarten / Preschool", "Primary School", "Secondary School", "High School", "Language Center", "Online"];
-      return (
-        <select
-          value={value}
-          onChange={(e) => handleChange(key, e.target.value)}
-          className="w-full p-3 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#f58220]/20 focus:border-[#f58220] outline-none transition-all bg-gray-50/50 cursor-pointer"
-        >
-          <option value="N/A">Chọn phân loại</option>
-          {options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
-        </select>
-      );
-    }
+    // ========== ĐÃ XÓA: Logic select cũ của class_type ==========
+    // if (key === 'class_type') { ... }
 
-    // ========== GIỮ NGUYÊN: Button multi-select cho branch và cv_source ==========
-    if (key === 'branch' || key === 'cv_source') {
-      const options = key === 'branch' ? BRANCH_OPTIONS : SOURCE_OPTIONS;
+    // ========== ĐÃ SỬA: Thêm class_type vào button multi-select ==========
+    if (key === 'branch' || key === 'cv_source' || key === 'class_type') {
+      const options = 
+        key === 'branch' ? BRANCH_OPTIONS : 
+        key === 'cv_source' ? SOURCE_OPTIONS : 
+        CLASS_TYPE_OPTIONS; // ← THÊM MỚI
+      
       const selected = value.split(',').map((s: string) => s.trim());
       
       return (
@@ -150,7 +152,6 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm,
       );
     }
 
-    // ========== MỚI: Custom dropdown với checkboxes cho candidate_type ==========
     if (key === 'candidate_type') {
       const selectedValues = value.split(',').map((s: string) => s.trim()).filter((s: string) => s && s !== 'N/A');
       
@@ -180,7 +181,6 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm,
           
           {isCandidateTypeOpen && (
             <>
-              {/* Backdrop để đóng dropdown khi click bên ngoài */}
               <div 
                 className="fixed inset-0 z-10" 
                 onClick={() => setIsCandidateTypeOpen(false)}
@@ -208,7 +208,6 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm,
             </>
           )}
           
-          {/* Hiển thị các tags đã chọn */}
           {selectedValues.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-2">
               {selectedValues.map(val => (
@@ -284,7 +283,8 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm,
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {section.fields.map((key) => (
-                    <div key={key} className={['address', 'certificates', 'branch', 'cv_source', 'candidate_type'].includes(key) ? 'sm:col-span-2' : ''}>
+                    // ========== ĐÃ SỬA: Thêm 'class_type' vào full-width ==========
+                    <div key={key} className={['address', 'certificates', 'branch', 'cv_source', 'candidate_type', 'class_type'].includes(key) ? 'sm:col-span-2' : ''}>
                       <label className="block text-[11px] font-bold text-gray-400 uppercase mb-1.5 ml-1">{fieldLabels[key]}</label>
                       {renderField(key)}
                     </div>
@@ -306,8 +306,9 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm,
                 </div>
                 <div className="bg-orange-50/50 p-4 rounded-xl border border-orange-100 flex gap-3 mt-4">
                   <Info className="w-5 h-5 text-[#f58220] flex-shrink-0 mt-0.5" />
+                  {/* ========== ĐÃ SỬA: Update info text ========== */}
                   <p className="text-[11px] text-orange-800 leading-relaxed">
-                    Trường <strong>Loại Ứng Viên</strong> cho phép bạn chọn một hoặc nhiều loại (Full-time/Part-time). Click vào dropdown để chọn.
+                    Trường <strong>Loại Ứng Viên</strong> và <strong>Môi trường dạy</strong> cho phép bạn chọn một hoặc nhiều lựa chọn. Click để chọn.
                   </p>
                 </div>
              </div>
