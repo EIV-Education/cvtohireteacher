@@ -1,3 +1,4 @@
+
 export enum InputMode {
   TEXT = 'TEXT',
   FILE = 'FILE'
@@ -7,7 +8,6 @@ export interface UploadedFile {
   name: string;
   type: string;
   data: string; // Base64 string
-  extractedText?: string; // Text extracted from Word files
 }
 
 export interface LarkConfig {
