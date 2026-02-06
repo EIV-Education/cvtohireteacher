@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+
+import React, { useRef } from 'react';
 import { 
   Save, X, User, MapPin, Mail, Phone, GraduationCap, 
   Award, Briefcase, Users, Trash2, CheckCircle2, 
-  Info, Calendar, Share2, Building2, Check
+  Info, Calendar, Share2, Building2, Check, Paperclip, Upload, FileText, Image as ImageIcon
 } from 'lucide-react';
+import { UploadedFile } from '../types';
 
 interface ReviewSectionProps {
   data: any;
@@ -11,13 +13,42 @@ interface ReviewSectionProps {
   onConfirm: () => void;
   onCancel: () => void;
   isSending: boolean;
+  cvFile: UploadedFile | null;
+  setCvFile: (file: UploadedFile | null) => void;
 }
 
-const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm, onCancel, isSending }) => {
-  const [isCandidateTypeOpen, setIsCandidateTypeOpen] = useState(false);
+const ReviewSection: React.FC<ReviewSectionProps> = ({ 
+  data, 
+  setData, 
+  onConfirm, 
+  onCancel, 
+  isSending,
+  cvFile,
+  setCvFile
+}) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (key: string, value: string) => {
     setData({ ...data, [key]: value });
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 10 * 1024 * 1024) {
+        alert("File quá lớn (tối đa 10MB).");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCvFile({
+          name: file.name,
+          type: file.type || 'application/octet-stream',
+          data: reader.result as string
+        });
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const sections = [
@@ -50,21 +81,13 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm,
     candidate_type: "Loại Ứng Viên"
   };
 
-  const BRANCH_OPTIONS = ["HO CHI MINH","DA NANG","HA NOI"];
-  const SOURCE_OPTIONS = ["Facebook", "LinkedIn", "Website", "Vietnamteachingjobs", "Outsource", "Refferal from a friend", "Group Zalo", "Other"];
+  const BRANCH_OPTIONS = ["HO CHI MINH", "HA NOI", "DA NANG"];
+  const SOURCE_OPTIONS = ["Facebook", "LinkedIn", "Website", "Referral", "TopCV", "VietnamWorks", "Indeed", "TikTok"];
   const CANDIDATE_TYPE_OPTIONS = [
     "School during daytime (full-time)",
     "Private classes/Centers during evenings and weekends (part-time)"
   ];
-  // ========== THÊM MỚI: CONSTANT CHO CLASS_TYPE ==========
-  const CLASS_TYPE_OPTIONS = [
-    "Kindergarten / Preschool", 
-    "Primary School", 
-    "Secondary School", 
-    "High School", 
-    "Language Center", 
-    "Online"
-  ];
+  const CLASS_TYPE_OPTIONS = ["Kindergarten / Preschool", "Primary School", "Secondary School", "High School", "Language Center", "Online", "University"];
 
   const toggleOption = (key: string, option: string) => {
     const currentValue = data[key] || '';
@@ -80,20 +103,6 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm,
     handleChange(key, newValue || 'N/A');
   };
 
-  const toggleCandidateType = (option: string) => {
-    const currentValue = data['candidate_type'] || '';
-    const selectedValues = currentValue.split(',').map((s: string) => s.trim()).filter((s: string) => s && s !== 'N/A');
-    
-    let newValues;
-    if (selectedValues.includes(option)) {
-      newValues = selectedValues.filter(v => v !== option);
-    } else {
-      newValues = [...selectedValues, option];
-    }
-    
-    handleChange('candidate_type', newValues.join(', ') || 'N/A');
-  };
-
   const renderField = (key: string) => {
     const value = data[key] || '';
     
@@ -102,7 +111,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm,
         <select
           value={value}
           onChange={(e) => handleChange(key, e.target.value)}
-          className="w-full p-3 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#f58220]/20 focus:border-[#f58220] outline-none transition-all bg-gray-50/50 cursor-pointer"
+          className="w-full p-3 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#f58220]/20 focus:border-[#f58220] outline-none transition-all bg-gray-50/50 cursor-pointer font-bold"
         >
           <option value="N/A">Chọn giới tính</option>
           <option value="Male">Male</option>
@@ -111,16 +120,13 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm,
       );
     }
 
-    // ========== ĐÃ XÓA: Logic select cũ của class_type ==========
-    // if (key === 'class_type') { ... }
-
-    // ========== ĐÃ SỬA: Thêm class_type vào button multi-select ==========
-    if (key === 'branch' || key === 'cv_source' || key === 'class_type') {
+    if (key === 'branch' || key === 'cv_source' || key === 'candidate_type' || key === 'class_type') {
       const options = 
         key === 'branch' ? BRANCH_OPTIONS : 
         key === 'cv_source' ? SOURCE_OPTIONS : 
-        CLASS_TYPE_OPTIONS; // ← THÊM MỚI
-      
+        key === 'candidate_type' ? CANDIDATE_TYPE_OPTIONS : 
+        CLASS_TYPE_OPTIONS;
+
       const selected = value.split(',').map((s: string) => s.trim());
       
       return (
@@ -146,90 +152,8 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm,
             placeholder="Hoặc nhập khác..."
             value={value === 'N/A' ? '' : value}
             onChange={(e) => handleChange(key, e.target.value)}
-            className="w-full p-2 text-[11px] border border-gray-100 rounded-lg focus:outline-none focus:border-[#f58220] bg-gray-50/30"
+            className="w-full p-2 text-[11px] border border-gray-100 rounded-lg focus:outline-none focus:border-[#f58220] bg-gray-50/30 font-bold"
           />
-        </div>
-      );
-    }
-
-    if (key === 'candidate_type') {
-      const selectedValues = value.split(',').map((s: string) => s.trim()).filter((s: string) => s && s !== 'N/A');
-      
-      return (
-        <div className="relative">
-          <button
-            type="button"
-            onClick={() => setIsCandidateTypeOpen(!isCandidateTypeOpen)}
-            className="w-full p-3 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#f58220]/20 focus:border-[#f58220] outline-none transition-all bg-gray-50/50 text-left flex justify-between items-center hover:border-[#f58220]"
-          >
-            <span className={selectedValues.length === 0 ? 'text-gray-400' : 'text-gray-700'}>
-              {selectedValues.length === 0 
-                ? 'Chọn loại ứng viên...' 
-                : selectedValues.length === 1
-                  ? selectedValues[0]
-                  : `${selectedValues.length} loại đã chọn`}
-            </span>
-            <svg 
-              className={`w-4 h-4 transition-transform text-gray-400 ${isCandidateTypeOpen ? 'rotate-180' : ''}`} 
-              fill="none" 
-              stroke="currentColor" 
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-          
-          {isCandidateTypeOpen && (
-            <>
-              <div 
-                className="fixed inset-0 z-10" 
-                onClick={() => setIsCandidateTypeOpen(false)}
-              />
-              
-              <div className="absolute z-20 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden">
-                {CANDIDATE_TYPE_OPTIONS.map(opt => {
-                  const isSelected = selectedValues.includes(opt);
-                  return (
-                    <label
-                      key={opt}
-                      className="flex items-start px-4 py-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0 transition-colors"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={isSelected}
-                        onChange={() => toggleCandidateType(opt)}
-                        className="w-4 h-4 text-[#f58220] border-gray-300 rounded focus:ring-[#f58220] cursor-pointer mt-0.5 flex-shrink-0"
-                      />
-                      <span className="ml-3 text-sm text-gray-700 leading-snug">{opt}</span>
-                    </label>
-                  );
-                })}
-              </div>
-            </>
-          )}
-          
-          {selectedValues.length > 0 && (
-            <div className="mt-2 flex flex-wrap gap-2">
-              {selectedValues.map(val => (
-                <span 
-                  key={val} 
-                  className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#f58220] text-white text-[11px] rounded-full font-medium"
-                >
-                  <span className="line-clamp-1">{val}</span>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleCandidateType(val);
-                    }}
-                    className="hover:bg-white/20 rounded-full p-0.5 transition-colors"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              ))}
-            </div>
-          )}
         </div>
       );
     }
@@ -240,7 +164,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm,
           value={value}
           onChange={(e) => handleChange(key, e.target.value)}
           rows={key === 'experience_summary' ? 10 : 3}
-          className="w-full p-3 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#f58220]/20 focus:border-[#f58220] outline-none transition-all bg-gray-50/50 resize-y"
+          className="w-full p-3 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#f58220]/20 focus:border-[#f58220] outline-none transition-all bg-gray-50/50 resize-y font-medium"
         />
       );
     }
@@ -250,7 +174,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm,
         type="text"
         value={value}
         onChange={(e) => handleChange(key, e.target.value)}
-        className="w-full p-3 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#f58220]/20 focus:border-[#f58220] outline-none transition-all bg-gray-50/50"
+        className="w-full p-3 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#f58220]/20 focus:border-[#f58220] outline-none transition-all bg-gray-50/50 font-bold"
       />
     );
   };
@@ -264,7 +188,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm,
           </div>
           <div>
             <h2 className="font-bold text-gray-900 text-lg leading-tight">Phân tích CV Thành công</h2>
-            <p className="text-sm text-gray-500 font-medium">Vui lòng kiểm tra và sửa thông tin trước khi lưu</p>
+            <p className="text-sm text-gray-500 font-medium">Vui lòng rà soát tệp đính kèm và thông tin trích xuất</p>
           </div>
         </div>
         <button onClick={onCancel} className="p-3 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-2xl transition-all">
@@ -275,6 +199,53 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm,
       <div className="flex-1 overflow-y-auto p-8 space-y-8 bg-gray-50/30">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="space-y-6">
+            
+            {/* Attachment Review Section */}
+            <div className={`p-6 rounded-2xl border-2 border-dashed transition-all duration-300 flex flex-col gap-4 ${cvFile ? 'bg-white border-green-200' : 'bg-orange-50 border-orange-200 animate-pulse'}`}>
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <Paperclip className={`w-4 h-4 ${cvFile ? 'text-green-600' : 'text-[#f58220]'}`} />
+                        <h3 className="font-bold text-xs text-gray-800 uppercase tracking-widest">Tệp đính kèm gốc</h3>
+                    </div>
+                </div>
+
+                {cvFile ? (
+                    <div className="flex items-center justify-between bg-gray-50 p-4 rounded-xl border border-gray-100 group">
+                        <div className="flex items-center gap-3 overflow-hidden">
+                            {cvFile.type.startsWith('image/') ? (
+                                <div className="w-12 h-12 rounded-lg overflow-hidden border border-gray-200 flex-shrink-0">
+                                    <img src={cvFile.data} className="w-full h-full object-cover" alt="CV" />
+                                </div>
+                            ) : (
+                                <div className="p-2 bg-white rounded-lg border border-gray-200">
+                                    <FileText className="w-6 h-6 text-gray-400" />
+                                </div>
+                            )}
+                            <div className="overflow-hidden">
+                                <p className="text-sm font-bold text-gray-800 truncate leading-tight">{cvFile.name}</p>
+                                <p className="text-[10px] text-green-600 font-black uppercase tracking-widest mt-1">Sẵn sàng lưu Lark Base</p>
+                            </div>
+                        </div>
+                        <button 
+                            onClick={() => fileInputRef.current?.click()}
+                            className="p-2 text-gray-400 hover:text-[#f58220] hover:bg-white rounded-lg transition-all shadow-sm"
+                            title="Thay đổi tệp"
+                        >
+                            <Upload className="w-4 h-4" />
+                        </button>
+                    </div>
+                ) : (
+                    <button 
+                        onClick={() => fileInputRef.current?.click()}
+                        className="w-full py-6 bg-white border border-gray-200 rounded-xl flex flex-col items-center justify-center gap-2 hover:border-[#f58220] hover:bg-orange-50/50 transition-all"
+                    >
+                        <Upload className="w-6 h-6 text-gray-300" />
+                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Tải tệp CV gốc lên để lưu Lark</p>
+                    </button>
+                )}
+                <input type="file" ref={fileInputRef} className="hidden" onChange={handleFileChange} />
+            </div>
+
             {sections.map((section) => (
               <div key={section.title} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
                 <div className="flex items-center gap-2 pb-2 border-b border-gray-50">
@@ -283,7 +254,6 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm,
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {section.fields.map((key) => (
-                    // ========== ĐÃ SỬA: Thêm 'class_type' vào full-width ==========
                     <div key={key} className={['address', 'certificates', 'branch', 'cv_source', 'candidate_type', 'class_type'].includes(key) ? 'sm:col-span-2' : ''}>
                       <label className="block text-[11px] font-bold text-gray-400 uppercase mb-1.5 ml-1">{fieldLabels[key]}</label>
                       {renderField(key)}
@@ -306,9 +276,8 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm,
                 </div>
                 <div className="bg-orange-50/50 p-4 rounded-xl border border-orange-100 flex gap-3 mt-4">
                   <Info className="w-5 h-5 text-[#f58220] flex-shrink-0 mt-0.5" />
-                  {/* ========== ĐÃ SỬA: Update info text ========== */}
-                  <p className="text-[11px] text-orange-800 leading-relaxed">
-                    Trường <strong>Loại Ứng Viên</strong> và <strong>Môi trường dạy</strong> cho phép bạn chọn một hoặc nhiều lựa chọn. Click để chọn.
+                  <p className="text-[11px] text-orange-800 leading-relaxed font-bold">
+                    Dữ liệu sẽ được gửi đến Lark Base kèm tệp gốc đã chọn ở trên. Đảm bảo thông tin cá nhân chính xác tuyệt đối.
                   </p>
                 </div>
              </div>
@@ -322,20 +291,20 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ data, setData, onConfirm,
           Ngày tạo: {new Date().toLocaleDateString('vi-VN')}
         </div>
         <div className="flex gap-4">
-          <button onClick={onCancel} className="px-8 py-3.5 bg-gray-100 text-gray-600 rounded-2xl font-bold hover:bg-gray-200 transition-all">
+          <button onClick={onCancel} className="px-8 py-3.5 bg-gray-100 text-gray-600 rounded-2xl font-bold hover:bg-gray-200 transition-all uppercase text-[11px] tracking-widest">
             Hủy bỏ
           </button>
           <button
             onClick={onConfirm}
             disabled={isSending}
-            className="px-10 py-3.5 bg-[#f58220] hover:bg-[#e67300] text-white rounded-2xl font-bold flex items-center justify-center gap-3 transition-all shadow-xl shadow-[#f58220]/20 active:scale-95 min-w-[240px]"
+            className="px-10 py-3.5 bg-[#f58220] hover:bg-[#e67300] text-white rounded-2xl font-bold flex items-center justify-center gap-3 transition-all shadow-xl shadow-[#f58220]/20 active:scale-95 min-w-[240px] uppercase text-[11px] tracking-widest"
           >
             {isSending ? (
               <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
             ) : (
               <Save className="w-5 h-5" />
             )}
-            {isSending ? 'Đang lưu...' : 'Xác nhận & Lưu Lark'}
+            {isSending ? 'Đang đồng bộ...' : 'Xác nhận & Lưu Lark'}
           </button>
         </div>
       </div>
