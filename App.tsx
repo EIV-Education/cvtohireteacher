@@ -341,9 +341,9 @@ function App() {
                   </div>
                   <div className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm">
                     <h3 className="text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-2 flex items-center gap-2">
-                      <CheckCircle2 className="w-3 h-3 text-[#f58220]" /> AI Engine
+                      <CheckCircle2 className="w-3 h-3 text-[#f58220]" /> Powered by IT EIV
                     </h3>
-                    <p className="text-xs font-bold text-gray-600">PDF, Word, Images</p>
+                    <p className="text-xs font-bold text-gray-600">ANH NGUYỄN</p>
                   </div>
                 </div>
               </div>
