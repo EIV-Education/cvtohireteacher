@@ -81,13 +81,13 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
     candidate_type: "Loại Ứng Viên"
   };
 
-  const BRANCH_OPTIONS = ["HO CHI MINH", "HA NOI", "DA NANG"];
-  const SOURCE_OPTIONS = ["Facebook", "LinkedIn", "Website", "Referral", "TopCV", "VietnamWorks", "Indeed", "TikTok"];
+  const BRANCH_OPTIONS = ["HO CHI MINH","DA NANG","HA NOI"];
+  const SOURCE_OPTIONS = ["Facebook", "LinkedIn", "Website", "Vietnamteachingjobs", "Outsource", "Refferal from a friend", "Group Zalo", "Other"];
   const CANDIDATE_TYPE_OPTIONS = [
     "School during daytime (full-time)",
     "Private classes/Centers during evenings and weekends (part-time)"
   ];
-  const CLASS_TYPE_OPTIONS = ["Kindergarten / Preschool", "Primary School", "Secondary School", "High School", "Language Center", "Online", "University"];
+  const CLASS_TYPE_OPTIONS = ["Kindergarten / Preschool", "Primary School", "Secondary School", "High School", "Language Center", "Online"];
 
   const toggleOption = (key: string, option: string) => {
     const currentValue = data[key] || '';
@@ -188,7 +188,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
           </div>
           <div>
             <h2 className="font-bold text-gray-900 text-lg leading-tight">Phân tích CV Thành công</h2>
-            <p className="text-sm text-gray-500 font-medium">Vui lòng rà soát tệp đính kèm và thông tin trích xuất</p>
+            <p className="text-sm text-gray-500 font-medium">Vui lòng kiểm tra và sửa thông tin trước khi lưu</p>
           </div>
         </div>
         <button onClick={onCancel} className="p-3 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-2xl transition-all">
