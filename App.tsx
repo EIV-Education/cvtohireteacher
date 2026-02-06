@@ -9,19 +9,6 @@ import { Settings as SettingsIcon, Save, X, RefreshCcw, Info, Database, FileCode
 
 const DEFAULT_WEBHOOK_URL = "https://eiveducation.sg.larksuite.com/base/automation/webhook/event/XczYac0jswZYWehHEcXlXJJQgmc";
 
-// Supported file types expanded to include images
-const SUPPORTED_FILE_TYPES = {
-  'application/pdf': '.pdf',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '.docx',
-  'application/msword': '.doc',
-  'image/jpeg': '.jpg, .jpeg',
-  'image/png': '.png',
-  'image/webp': '.webp',
-  'image/heic': '.heic'
-};
-
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-
 const INITIAL_TEMPLATE = `TRÍCH XUẤT THÔNG TIN VÀ TRẢ VỀ DẠNG JSON OBJECT:
 {
   "full_name": "Nguyễn Văn A",
@@ -35,7 +22,7 @@ const INITIAL_TEMPLATE = `TRÍCH XUẤT THÔNG TIN VÀ TRẢ VỀ DẠNG JSON OB
   "certificates": "IELTS 7.5,TEFL,CELTA,TESOL,TOEIC 900+",
   "experience_summary": "Tóm tắt kinh nghiệm làm việc chuyên môn.",
   "class_type": "Kindergarten / Preschool, Primary School, Secondary School, High School, Language Center, Online...",
-  "branch": "HO CHI MINH / DA NANG/ HA NOI ",
+  "branch": "HO CHI MINH / HA NOI / DA NANG",
   "cv_source": "Facebook / LinkedIn / Website / Vietnamteachingjobs / Group Zalo / Outsource / Refferal from a friend/ Other/ ...",
   "candidate_type": "School during daytime (full-time) / Private classes/Centers during evenings and weekends (part-time)"
 }
@@ -50,7 +37,6 @@ function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isTestingWebhook, setIsTestingWebhook] = useState(false);
   const [testSuccess, setTestSuccess] = useState(false);
-  const [fileProcessingStatus, setFileProcessingStatus] = useState<string>('');
   
   // Settings States
   const [larkConfig, setLarkConfig] = useState<LarkConfig>(() => {
@@ -77,101 +63,12 @@ function App() {
     }
   };
 
-  // Validate file before processing
-  const validateFile = (file: File): { valid: boolean; error?: string } => {
-    const isSupported = Object.keys(SUPPORTED_FILE_TYPES).some(type => 
-      file.type === type || (type.startsWith('image/') && file.type.startsWith('image/'))
-    );
-
-    if (!isSupported) {
-      return { 
-        valid: false, 
-        error: `Định dạng file không hỗ trợ. Chỉ chấp nhận: ${Object.values(SUPPORTED_FILE_TYPES).join(', ')}` 
-      };
-    }
-    
-    if (file.size > MAX_FILE_SIZE) {
-      return { 
-        valid: false, 
-        error: `File quá lớn. Kích thước tối đa: ${MAX_FILE_SIZE / 1024 / 1024}MB` 
-      };
-    }
-    
-    return { valid: true };
-  };
-
-  // Extract text from Word document using mammoth
-  const extractWordText = async (file: File): Promise<string> => {
-    setFileProcessingStatus('Đang đọc file Word...');
-    
-    try {
-      const mammoth = await import('mammoth');
-      const arrayBuffer = await file.arrayBuffer();
-      const result = await mammoth.extractRawText({ arrayBuffer });
-      
-      if (!result.value || result.value.trim().length === 0) {
-        throw new Error('File Word không chứa text hoặc bị lỗi định dạng');
-      }
-      
-      setFileProcessingStatus('');
-      return result.value;
-    } catch (error: any) {
-      setFileProcessingStatus('');
-      throw new Error(`Lỗi đọc file Word: ${error.message}`);
-    }
-  };
-
-  const fileToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = () => reject(new Error('Lỗi đọc file'));
-      reader.readAsDataURL(file);
-    });
-  };
-
-  const handleFileUpload = async (file: File): Promise<UploadedFile | null> => {
-    const validation = validateFile(file);
-    if (!validation.valid) {
-      alert(validation.error);
-      return null;
-    }
-
-    try {
-      setFileProcessingStatus('Đang xử lý file...');
-      const base64Data = await fileToBase64(file);
-      
-      let extractedText = '';
-      if (file.type.includes('word') || file.name.endsWith('.docx') || file.name.endsWith('.doc')) {
-        extractedText = await extractWordText(file);
-        setCvText(extractedText);
-      } else if (file.type.startsWith('image/')) {
-        // Clear previous text if uploading a new image for analysis
-        setCvText('');
-      }
-
-      setFileProcessingStatus('');
-      
-      return {
-        name: file.name,
-        data: base64Data,
-        type: file.type,
-        extractedText: extractedText || undefined
-      };
-    } catch (error: any) {
-      setFileProcessingStatus('');
-      alert(error.message);
-      return null;
-    }
-  };
-
   const sendToLark = async (data: any, file: UploadedFile | null, isTest: boolean = false) => {
     if (!larkConfig.webhookUrl) return;
 
     const fieldsWithFile = {
       ...data,
       "file_attachment_name": file ? file.name : (isTest ? "Sample_CV.pdf" : "N/A"),
-      "file_type": file ? file.type : "N/A",
       "file_content_base64": file ? file.data.split(',')[1] : (isTest ? "VGVzdCBkYXRh" : ""), 
       "upload_time": new Date().toLocaleString('vi-VN')
     };
@@ -236,16 +133,9 @@ function App() {
       setIsSettingsOpen(true);
       return;
     }
-
-    const contentToProcess = cvFile?.extractedText || cvText;
-    if (!contentToProcess && !cvFile) {
-      alert("Vui lòng nhập text CV hoặc upload file.");
-      return;
-    }
-
     setStatus(ProcessingStatus.PROCESSING);
     try {
-      const result = await processCV(extractionTemplate, contentToProcess, cvFile);
+      const result = await processCV(extractionTemplate, cvText, cvFile);
       let parsedData;
       try {
         const jsonMatch = result.match(/\{[\s\S]*\}/);
@@ -260,7 +150,6 @@ function App() {
       console.error(error);
       alert(error.message);
       setStatus(ProcessingStatus.ERROR);
-      setTimeout(() => setStatus(ProcessingStatus.IDLE), 2000);
     }
   };
 
@@ -290,14 +179,6 @@ function App() {
     <div className="min-h-screen flex flex-col bg-[#f4f7fe] text-gray-900 font-['Inter'] overflow-hidden">
       <Header onOpenSettings={() => setIsSettingsOpen(true)} />
       
-      {fileProcessingStatus && (
-        <div className="bg-blue-50 border-b border-blue-100 px-4 py-3 text-center">
-          <p className="text-sm font-medium text-blue-700 animate-pulse">
-            {fileProcessingStatus}
-          </p>
-        </div>
-      )}
-      
       <main className="flex-1 w-full mx-auto px-4 py-8 flex justify-center items-start">
         <div className={`w-full transition-all duration-700 ${
           status === ProcessingStatus.REVIEW || status === ProcessingStatus.SENDING || (status === ProcessingStatus.SUCCESS && extractedData)
@@ -311,8 +192,6 @@ function App() {
                 onConfirm={handleConfirmAndSend}
                 onCancel={handleCancelReview}
                 isSending={status === ProcessingStatus.SENDING}
-                cvFile={cvFile}
-                setCvFile={setCvFile}
               />
             ) : (
               <div className="max-w-xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-500">
@@ -326,9 +205,6 @@ function App() {
                   onProcess={handleProcess}
                   isProcessing={status === ProcessingStatus.PROCESSING}
                   status={status}
-                  onFileUpload={handleFileUpload}
-                  supportedFileTypes={Object.values(SUPPORTED_FILE_TYPES).join(', ')}
-                  maxFileSize={MAX_FILE_SIZE}
                 />
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm">
@@ -351,6 +227,7 @@ function App() {
         </div>
       </main>
 
+      {/* Settings Modal */}
       {isSettingsOpen && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
           <div className="bg-white rounded-[2rem] w-full max-w-2xl shadow-2xl overflow-hidden animate-in zoom-in duration-300 flex flex-col max-h-[90vh]">
@@ -402,4 +279,3 @@ function App() {
 }
 
 export default App;
-
