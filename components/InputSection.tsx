@@ -98,7 +98,7 @@ const InputSection: React.FC<InputSectionProps> = ({
               inputMode === InputMode.FILE ? 'bg-white text-[#f58220] shadow-sm font-bold border border-gray-50' : 'text-gray-500 hover:text-gray-700'
             }`}
           >
-            <Upload className="w-4 h-4" /> <span>Tải File / Ảnh CV</span>
+            <Upload className="w-4 h-4" /> <span>Tải File CV</span>
           </button>
           <button
             onClick={() => setInputMode(InputMode.TEXT)}
