@@ -4,6 +4,16 @@ import { UploadedFile } from "../types";
 
 const wait = (ms: number) => new Promise(res => setTimeout(res, ms));
 
+// MIME types supported by Gemini API for inlineData
+const SUPPORTED_AI_MIMES = [
+  'application/pdf',
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/heic',
+  'image/heif'
+];
+
 const processCV = async (
   instructions: string, 
   cvText: string, 
@@ -23,13 +33,21 @@ const processCV = async (
     YÊU CẦU ĐỊNH DẠNG:
     ${instructions}
     
-    DỮ LIỆU CV:
+    DỮ LIỆU CV (VĂN BẢN):
     ${cvText || "(Phân tích từ file đính kèm bên dưới)"}
+    
+    ${cvFile?.extractedText ? `
+    TEXT TỪ FILE WORD (ĐÃ TRÍCH XUẤT):
+    ${cvFile.extractedText.substring(0, 10000)}
+    ` : ''}
   `;
 
   const parts: any[] = [{ text: userPrompt }];
 
-  if (cvFile) {
+  // CRITICAL FIX: Only send file as binary if it's a supported type (PDF or Image)
+  // Word files (.docx) are NOT supported as inlineData and cause a 400 error.
+  // We rely on the extractedText passed in the prompt for Word files.
+  if (cvFile && SUPPORTED_AI_MIMES.includes(cvFile.type)) {
     const base64Data = cvFile.data.split(',')[1]; 
     parts.unshift({
       inlineData: {
@@ -51,11 +69,16 @@ const processCV = async (
     });
 
     const result = response.text;
-    if (!result) throw new Error("AI không thể đọc được file này.");
+    if (!result) throw new Error("AI không thể trích xuất được thông tin từ hồ sơ này.");
     return result;
 
   } catch (error: any) {
-    if (retryCount > 0 && !error.message?.includes('401')) {
+    // Handle specific API errors
+    if (error.message?.includes('Unsupported MIME type')) {
+      throw new Error("Định dạng tệp này không được AI hỗ trợ đọc trực tiếp. Hệ thống đã cố gắng trích xuất văn bản, vui lòng kiểm tra lại nội dung.");
+    }
+
+    if (retryCount > 0 && !error.message?.includes('401') && !error.message?.includes('400')) {
       await wait(2000);
       return processCV(instructions, cvText, cvFile, retryCount - 1);
     }
