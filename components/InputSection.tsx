@@ -158,8 +158,8 @@ const InputSection: React.FC<InputSectionProps> = ({
                      <ImageIcon className={`w-8 h-8 transition-colors ${isDragging ? 'text-[#f58220]' : 'text-gray-400 group-hover:text-[#f58220]'}`} />
                   </div>
                 </div>
-                <p className="text-sm font-bold text-gray-700">Tải lên File CV hoặc Ảnh chụp CV</p>
-                <p className="text-[11px] text-gray-400 mt-2 uppercase tracking-wide">PDF, Word, JPG, PNG, WEBP (Tối đa 10MB)</p>
+                <p className="text-sm font-bold text-gray-700">Kéo thả hoặc Click để tải CV</p>
+                <p className="text-[11px] text-gray-400 mt-2 uppercase tracking-wide">PDF, Word, JPG, PNG (Tối đa 10MB)</p>
               </>
             )}
             <input 
@@ -174,7 +174,7 @@ const InputSection: React.FC<InputSectionProps> = ({
           <textarea
             value={cvText}
             onChange={(e) => setCvText(e.target.value)}
-            placeholder="Dán toàn bộ nội dung văn bản CV vào đây..."
+            placeholder="Dán toàn bộ nội dung CV vào đây..."
             className="w-full h-64 p-5 text-sm border border-gray-200 rounded-2xl focus:ring-4 focus:ring-orange-100 focus:border-[#f58220] outline-none resize-none transition-all shadow-inner bg-gray-50/30"
           />
         )}
