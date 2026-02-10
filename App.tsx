@@ -7,7 +7,7 @@ import { InputMode, ProcessingStatus, UploadedFile, LarkConfig } from './types';
 import { processCV } from './services/geminiService';
 import { Settings as SettingsIcon, Save, X, RefreshCcw, Info, Database, FileCode, Play, CheckCircle2, Paperclip } from 'lucide-react';
 
-const DEFAULT_WEBHOOK_URL = "https://eiveducation.sg.larksuite.com/base/automation/webhook/event/XczYac0jswZYWehHEcXlXJJQgmc";
+const DEFAULT_WEBHOOK_URL = "https://open-sg.larksuite.com/anycross/trigger/callback/MDRjNTk4ODc0YjI1YzNjOWU5MTljNDc5N2FhMGRhZDM2";
 
 // Supported file types expanded to include images
 const SUPPORTED_FILE_TYPES = {
