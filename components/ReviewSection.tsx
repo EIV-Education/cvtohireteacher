@@ -82,10 +82,10 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
   };
 
   const BRANCH_OPTIONS = ["HO CHI MINH","DA NANG","HA NOI"];
-  const SOURCE_OPTIONS = ["Facebook", "LinkedIn", "Website", "Vietnamteachingjobs", "Outsource", "Refferal from a friend", "Group Zalo", "MKT", "Other"];
+  const SOURCE_OPTIONS = ["Facebook", "LinkedIn", "Website", "Vietnamteachingjobs", "Outsource", "Refferal from a friend", "Group Zalo", "Email Info", "Other"];
   const CANDIDATE_TYPE_OPTIONS = ["School during daytime (full-time)",
     "Private classes/Centers during evenings and weekends (part-time)"];
-  const CLASS_TYPE_OPTIONS = ["Kindergarten / Preschool", "Primary School", "Secondary School", "High School", "Language Center", "Online"];
+  const CLASS_TYPE_OPTIONS = ["Kindergarten / Preschool", "Primary School", "Secondary School", "High School", "English Centers", "Adult General English", "Online Classes"];
 
   const toggleOption = (key: string, option: string) => {
     const currentValue = data[key] || '';
