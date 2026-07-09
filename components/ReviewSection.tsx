@@ -88,6 +88,11 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
   const CLASS_TYPE_OPTIONS = ["Kindergarten / Preschool", "Primary School", "Secondary School", "High School", "English Centers", "Adult General English", "Online Classes"];
 
   const toggleOption = (key: string, option: string) => {
+    const selectSingleOption = (key: string, option: string) => {
+  const currentValue = data[key] || '';
+  const newValue = currentValue === option ? 'N/A' : option;
+  handleChange(key, newValue);
+};
     const currentValue = data[key] || '';
     const selectedOptions = currentValue.split(',').map((s: string) => s.trim()).filter((s: string) => s && s !== 'N/A');
     
