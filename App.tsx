@@ -27,7 +27,7 @@ const INITIAL_TEMPLATE = `TRÍCH XUẤT THÔNG TIN VÀ TRẢ VỀ DẠNG JSON OB
   "full_name": "Nguyễn Văn A",
   "gender": "Male/Female",
   "nationality": "Việt Nam",
-  "address": "Quận 1, TP.HCM",
+  "address": "PHẢI chọn CHÍNH XÁC 1 trong các giá trị sau dựa trên địa chỉ/nơi ở hiện tại của ứng viên tìm thấy trong CV:'HO CHI MINH', 'DA NANG', 'HA NOI', 'Other VietNam City', 'Outside of Vietnam'. Quy tắc: nếu địa chỉ thuộc TP.HCM/Hồ Chí Minh thì chọn 'HO CHI MINH'; nếu thuộc Đà Nẵng thì chọn 'DA NANG'; nếu thuộc Hà Nội thì chọn 'HA NOI'; nếu là một tỉnh/thành khác tại Việt Nam thì chọn 'Other VietNam City'; nếu địa chỉ ở nước ngoài thì chọn 'Outside of Vietnam'.",
   "birth_year": "1995",
   "email": "nguyenvana@email.com",
   "phone": "0901234567",
