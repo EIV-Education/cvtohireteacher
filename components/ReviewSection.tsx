@@ -88,11 +88,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
   const CLASS_TYPE_OPTIONS = ["Kindergarten / Preschool", "Primary School", "Secondary School", "High School", "English Centers", "Adult General English", "Online Classes"];
 
   const toggleOption = (key: string, option: string) => {
-    const selectSingleOption = (key: string, option: string) => {
-  const currentValue = data[key] || '';
-  const newValue = currentValue === option ? 'N/A' : option;
-  handleChange(key, newValue);
-};
+   
     const currentValue = data[key] || '';
     const selectedOptions = currentValue.split(',').map((s: string) => s.trim()).filter((s: string) => s && s !== 'N/A');
     
@@ -105,6 +101,11 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
     
     handleChange(key, newValue || 'N/A');
   };
+const selectSingleOption = (key: string, option: string) => {
+  const currentValue = data[key] || '';
+  const newValue = currentValue === option ? 'N/A' : option;
+  handleChange(key, newValue);
+};
 
   const renderField = (key: string) => {
     const value = data[key] || '';
@@ -130,7 +131,10 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
         key === 'candidate_type' ? CANDIDATE_TYPE_OPTIONS : 
         CLASS_TYPE_OPTIONS;
 
-      const selected = value.split(',').map((s: string) => s.trim());
+    const isSingleSelect = key === 'cv_source';
+    const selected = isSingleSelect
+      ? [value]
+      : value.split(',').map((s: string) => s.trim());
       
       return (
         <div className="space-y-2">
@@ -138,7 +142,9 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
             {options.map(opt => (
               <button
                 key={opt}
-                onClick={() => toggleOption(key, opt)}
+            onClick={() =>
+                  isSingleSelect ? selectSingleOption(key, opt) : toggleOption(key, opt)
+                }
                 className={`px-3 py-1.5 rounded-full text-[11px] font-bold transition-all border flex items-center gap-1 ${
                   selected.includes(opt)
                     ? 'bg-[#f58220] text-white border-[#f58220] shadow-sm'
