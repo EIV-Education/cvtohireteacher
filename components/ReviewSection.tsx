@@ -131,7 +131,7 @@ const selectSingleOption = (key: string, option: string) => {
         key === 'candidate_type' ? CANDIDATE_TYPE_OPTIONS : 
         CLASS_TYPE_OPTIONS;
 
-    const isSingleSelect = key === 'cv_source';
+    const isSingleSelect = key === 'cv_source' || key === 'branch';
     const selected = isSingleSelect
       ? [value]
       : value.split(',').map((s: string) => s.trim());
