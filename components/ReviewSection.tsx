@@ -55,7 +55,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
     {
       title: "Thông tin cá nhân",
       icon: <User className="w-4 h-4 text-[#f58220]" />,
-      fields: ['full_name', 'gender', 'birth_year', 'nationality', 'email', 'phone', 'address', 'branch', 'cv_source', 'candidate_type']
+      fields: ['full_name', 'gender', 'birth_year', 'nationality', 'email', 'phone', 'address', 'branch', 'cv_source', 'candidate_type', 'source_owner']
     },
     {
       title: "Chuyên môn & Bằng cấp",
@@ -78,14 +78,14 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
     class_type: "Môi trường dạy (Class Type)",
     branch: "Chi nhánh tiếp nhận",
     cv_source: "Nguồn CV (Source)",
-    candidate_type: "Loại Ứng Viên"
+    candidate_type: "Loại Ứng Viên", source_owner: "Nguồn phụ trách (Source Owner)"
   };
 
   const BRANCH_OPTIONS = ["HO CHI MINH","DA NANG","HA NOI"];
   const SOURCE_OPTIONS = ["Facebook", "LinkedIn", "Website", "Vietnamteachingjobs", "Outsource", "Refferal from a friend", "Group Zalo", "Email Info", "Other"];
   const CANDIDATE_TYPE_OPTIONS = ["School during daytime (full-time)",
     "Private classes/Centers during evenings and weekends (part-time)"];
-  const CLASS_TYPE_OPTIONS = ["Kindergarten / Preschool", "Primary School", "Secondary School", "High School", "English Centers", "Adult General English", "Online Classes"];
+  const CLASS_TYPE_OPTIONS = ["Kindergarten / Preschool", "Primary School", "Secondary School", "High School", "English Centers", "Adult General English", "Online Classes"]; const SOURCE_OWNER_OPTIONS = ["Team MKT", "Recruit HCM", "Recruit ĐN", "Recruit HN"];
 
   const toggleOption = (key: string, option: string) => {
    
@@ -124,14 +124,14 @@ const selectSingleOption = (key: string, option: string) => {
       );
     }
 
-    if (key === 'branch' || key === 'cv_source' || key === 'candidate_type' || key === 'class_type') {
+    if (key === 'branch' || key === 'cv_source' || key === 'candidate_type' || key === 'class_type' || key === 'source_owner') {
       const options = 
         key === 'branch' ? BRANCH_OPTIONS : 
         key === 'cv_source' ? SOURCE_OPTIONS : 
         key === 'candidate_type' ? CANDIDATE_TYPE_OPTIONS : 
-        CLASS_TYPE_OPTIONS;
+        key === 'source_owner' ? SOURCE_OWNER_OPTIONS : CLASS_TYPE_OPTIONS;
 
-    const isSingleSelect = key === 'cv_source' || key === 'branch';
+    const isSingleSelect = key === 'cv_source' || key === 'branch' || key === 'source_owner';
     const selected = isSingleSelect
       ? [value]
       : value.split(',').map((s: string) => s.trim());
@@ -263,7 +263,7 @@ const selectSingleOption = (key: string, option: string) => {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {section.fields.map((key) => (
-                    <div key={key} className={['address', 'certificates', 'branch', 'cv_source', 'candidate_type', 'class_type'].includes(key) ? 'sm:col-span-2' : ''}>
+                    <div key={key} className={['address', 'certificates', 'branch', 'cv_source', 'candidate_type', 'class_type', 'source_owner'].includes(key) ? 'sm:col-span-2' : ''}>
                       <label className="block text-[11px] font-bold text-gray-400 uppercase mb-1.5 ml-1">{fieldLabels[key]}</label>
                       {renderField(key)}
                     </div>
