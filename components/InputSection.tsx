@@ -30,14 +30,14 @@ const InputSection: React.FC<InputSectionProps> = ({
   status,
   onFileUpload,
   supportedFileTypes = '.pdf, .doc, .docx, .jpg, .jpeg, .png, .webp',
-  maxFileSize = 10485760 // 10MB
+  maxFileSize = 52428800 // 50MB
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
 
   const processFile = async (file: File) => {
     if (file.size > maxFileSize) {
-      alert("File quá lớn (tối đa 10MB).");
+      alert("File quá lớn (tối đa 50MB).");
       return;
     }
     
@@ -159,7 +159,7 @@ const InputSection: React.FC<InputSectionProps> = ({
                   </div>
                 </div>
                 <p className="text-sm font-bold text-gray-700">Kéo thả hoặc Click để tải CV</p>
-                <p className="text-[11px] text-gray-400 mt-2 uppercase tracking-wide">PDF, Word, JPG, PNG (Tối đa 10MB)</p>
+                <p className="text-[11px] text-gray-400 mt-2 uppercase tracking-wide">PDF, Word, JPG, PNG (Tối đa 50MB)</p>
               </>
             )}
             <input 
