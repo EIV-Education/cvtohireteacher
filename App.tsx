@@ -34,7 +34,7 @@ const INITIAL_TEMPLATE = `TRÍCH XUẤT THÔNG TIN VÀ TRẢ VỀ DẠNG JSON OB
   "university": "PHẢI chọn CHÍNH XÁC 1 trong các giá trị sau dựa trên bằng cấp cao nhất tìm thấy trong CV: 'Bachelor’s Degree', 'Associate’s Degree', 'Master’s Degree', 'Doctorate (PhD)'. Nếu CV không đề cập bằng cấp nào thuộc các loại trên hoặc không rõ, trả về 'Other'.",
   "certificates": "PHẢI chọn CHÍNH XÁC 1 trong các giá trị sau dựa trên chứng chỉ tiếng Anh nổi bật nhất trong CV: 'IELTS 7.0+', 'TEFL', 'CELTA', 'TESOL', 'TOEIC 900+', 'Vstep', 'EFSet', 'Aptis'. Nếu không tìm thấy chứng chỉ nào thuộc các loại trên, trả về 'Other'.",
   "experience_summary": "Tóm tắt kinh nghiệm làm việc chuyên môn bằng tiếng anh.",
-  "class_type": "Kindergarten / Preschool, Primary School, Secondary School, High School, Language Center, Online...",
+  "class_type": "PHẢI chọn CHÍNH XÁC các giá trị sau dựa trên loại hình/môi trường giảng dạy tìm thấy trong CV: 'Kindergarten / Preschool', 'Primary School', 'Secondary School', 'High School', 'Adult General English' , 'English Centers', 'Online Classes'. Nếu CV không đề cập hoặc không khớp với giá trị nào ở trên, để trống.",
   "branch": "HO CHI MINH / HA NOI / DA NANG",
   "cv_source": "Facebook / LinkedIn / Email Info / Website / Vietnamteachingjobs / Group Zalo / Outsource / Refferal from a friend/ Other/ ...",
   "Source Owner": "Team MKT / Recruit HCM / Recruit ĐN / Recruit HN",
