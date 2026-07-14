@@ -20,7 +20,7 @@ const SUPPORTED_FILE_TYPES = {
   'image/heic': '.heic'
 };
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 
 const INITIAL_TEMPLATE = `TRÍCH XUẤT THÔNG TIN VÀ TRẢ VỀ DẠNG JSON OBJECT:
 {
