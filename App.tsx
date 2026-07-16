@@ -266,6 +266,20 @@ function App() {
   };
 
   const handleConfirmAndSend = async () => {
+          const requiredFields: { key: string; label: string }[] = [
+            { key: 'branch', label: 'Chi nhánh (branch)' },
+            { key: 'cv_source', label: 'Nguồn CV (cv_source)' },
+            { key: 'source_owner', label: 'Nguồn phụ trách (Source Owner)' }
+                  ];
+          const missingFields = requiredFields.filter(({ key }) => {
+                    const val = extractedData?.[key];
+                    return !val || val === 'N/A' || String(val).trim() === '';
+          });
+          if (missingFields.length > 0) {
+                    alert(`Vui lòng điền đầy đủ các trường bắt buộc trước khi lưu: ${missingFields.map(f => f.label).join(', ')}`);
+                    return;
+          }
+    
     setStatus(ProcessingStatus.SENDING);
     try {
       await sendToLark(extractedData, cvFile);
