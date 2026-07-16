@@ -40,7 +40,7 @@ const INITIAL_TEMPLATE = `TRÍCH XUẤT THÔNG TIN VÀ TRẢ VỀ DẠNG JSON OB
   "Source Owner": "Team MKT / Recruit HCM / Recruit ĐN / Recruit HN",
   "candidate_type": "School during daytime (full-time) / Private classes/Centers during evenings and weekends (part-time)"
 }
-Lưu ý: Nếu thiếu thông tin ghi "N/A"`;
+Lưu ý: Nếu thiếu thông tin, để trống giá trị đó (không ghi "N/A") để nhân viên tự điền.`;
 
 function App() {
   const [inputMode, setInputMode] = useState<InputMode>(InputMode.FILE);
